@@ -5,6 +5,8 @@
 # https://developers.google.com/explorer-help/code-samples#python
 
 import os
+import json
+from typing import ItemsView
 
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
@@ -29,10 +31,15 @@ def main():
         api_service_name, api_version, credentials=credentials)
 
     request = youtube.videos().list(
-        part="statistics",
+        part="statistics,snippet",
         id="oneyh3bDmw4"
     )
     response = request.execute()
+    video = json.loads(response)
+    videoViews = video["items"]["statistics"]["viewCount"]
+    videoChannel = video["items"]["snippet"]["channelId"]
+    videoThumb = video["items"]["snippet"]["thumbnails"]["standard"]["url"] #640 x 480
+
 
     print(response)
 
