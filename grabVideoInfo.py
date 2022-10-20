@@ -1,47 +1,34 @@
-# -*- coding: utf-8 -*-
+from googleapiclient.discovery import build
+import requests
 
-# Sample Python code for youtube.videos.list
-# See instructions for running these code samples locally:
-# https://developers.google.com/explorer-help/code-samples#python
+api_key = "AIzaSyBN8uq1KrWUHQnmqZOLqamZHcvsy-k9G10" # Don't leak this lol
+api_service_name = "youtube"
+api_version = "v3"
+youtube = build(api_service_name, api_version, developerKey=api_key)
 
-import os
-import json
-from typing import ItemsView
+request = youtube.videos().list(
+	part="statistics,snippet",
+	id="oneyh3bDmw4"
+)
+video = request.execute()
 
-import google_auth_oauthlib.flow
-import googleapiclient.discovery
-import googleapiclient.errors
+views = video["items"][0]["statistics"]["viewCount"]
+channelId = video["items"][0]["snippet"]["channelId"]
+thumb = video["items"][0]["snippet"]["thumbnails"]["standard"]["url"]
 
-scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
+print(views)
+print(channelId)
+print(thumb)
 
-def main():
-    # Disable OAuthlib's HTTPS verification when running locally.
-    # *DO NOT* leave this option enabled in production.
-    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+request = youtube.channels().list(
+	part="statistics",
+	id=channelId
+)
+channel = request.execute()
 
-    api_service_name = "youtube"
-    api_version = "v3"
-    client_secrets_file = "YOUR_CLIENT_SECRET_FILE.json"
+subs = channel["items"][0]["statistics"]["subscriberCount"]
+print(subs)
 
-    # Get credentials and create an API client
-    flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
-        client_secrets_file, scopes)
-    credentials = flow.run_console()
-    youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, credentials=credentials)
-
-    request = youtube.videos().list(
-        part="statistics,snippet",
-        id="oneyh3bDmw4"
-    )
-    response = request.execute()
-    video = json.loads(response)
-    videoViews = video["items"]["statistics"]["viewCount"]
-    videoChannel = video["items"]["snippet"]["channelId"]
-    videoThumb = video["items"]["snippet"]["thumbnails"]["standard"]["url"] #640 x 480
-
-
-    print(response)
-
-if __name__ == "__main__":
-    main()
+thumb_data = requests.get(thumb).content
+with open(views + '_' + subs + '.jpg', 'wb') as handler:
+	handler.write(thumb_data)
