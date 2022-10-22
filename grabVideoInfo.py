@@ -6,7 +6,10 @@ api_key = "AIzaSyBN8uq1KrWUHQnmqZOLqamZHcvsy-k9G10" # Don't leak this lol
 
 youtube = build("youtube", "v3", developerKey=api_key)
 
-playlists = {"UUGMqfwchF-3lLX443rY5Ygg"}
+# Takes numPerPlaylist videos for each videoID
+numPerPlaylist = 100
+playlists = {"UUFrj6EBhnHlWqmvuwH1Ue4g","UUIKlsX1qfGqKPt4KAW-JOZg","UUGMqfwchF-3lLX443rY5Ygg", "UUeuPD9Hx5og0KNy7ZTq9Wew", "UUR1D15p_vdP3HkrH8wgjQRw", "UUX6OQ3DkcsbYNE6H8uQQuVA", "UUp6F1mQGuaXiDj5otWBmIjg", "UUqTYHSnBUXZamsVcOlQf-fg",
+	"UUPcFg7aBbaVzXoIKSNqwaww", "UUcnci5vbpLJ-rh_V9yXwawg"}
 
 def getSubs(channelId):
 	request = youtube.channels().list(part="statistics", id=channelId)
@@ -50,6 +53,10 @@ def getPlaylistInfo(playlistId, page):
 	return request.execute()
 
 def downloadPlaylists():
+	# For formatting
+	totalProcessed = 0
+	maxTotal = len(playlists) * numPerPlaylist
+
 	for playlistId in playlists:
 		# This code is fairly shit, downloads stuff from a playlist
 		nextPage = None
@@ -61,7 +68,8 @@ def downloadPlaylists():
 			# Go through each video on each page
 			for video in currentPage["items"]:
 				processed += 1
-				print(f"=== Processing {processed}/{currentPage['pageInfo']['totalResults']} ===")
+				totalProcessed+=1
+				print(f"=== Processing {totalProcessed}/{maxTotal} ===")
 
 				videoId = video["contentDetails"]["videoId"]
 				title, thumb, views, category, channelId = getVideoInfo(videoId)
@@ -76,13 +84,20 @@ def downloadPlaylists():
 				saveThumbnail(thumb, f"dataset/{videoId}_{views}_{subs}.jpg")
 
 				print(f"{views} views, {subs} subscribers ({int(views) / int(subs)})\n")
+				
+				if processed >= numPerPlaylist:
+					break
+
+			if processed >= numPerPlaylist:
+				break
 
 			# Go to next playlist page if possible
 			if "nextPageToken" in currentPage:
 				nextPage = currentPage["nextPageToken"]
 			else:
 				break
-	
+
+				
 
 if __name__ == "__main__":
 
