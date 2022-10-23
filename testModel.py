@@ -27,7 +27,7 @@ for img in os.listdir('dataset'):
 source = np.array(source)
 target = np.array(target)
 
-# This model is really struggling lmao
+# This model is very shit, replace later
 model = keras.models.Sequential(
 	[
 		# Input has 3 dimensions: height x width x 3 color channels (RGB)
