@@ -5,8 +5,8 @@ import numpy as np
 from PIL import Image
 import os
 
-# Downscale thumbnails to 360p for training
-img_size = (480, 360)
+# Downscale thumbnails to 240p for training
+img_size = (352, 240)
 
 def loadImage(path):
 	img = Image.open(path, 'r').convert('RGB').resize(img_size)
@@ -21,50 +21,40 @@ target = []
 for img in os.listdir('dataset'):
 	source.append(loadImage(f'dataset/{img}'))
 	views, subs = img[12:-4].split("_")
-	target.append(int(views) / int(subs))
+	target.append(len(views) - 1) # Number of digits in viewcount
 
 # Convert to numpy arrays
 source = np.array(source)
 target = np.array(target)
 
-# This model is very shit, replace later
+# Updated with CalebNet V1
 model = keras.models.Sequential(
 	[
 		# Input has 3 dimensions: height x width x 3 color channels (RGB)
 		keras.Input(shape=(img_size[1], img_size[0], 3)),
 
-		# Try to learn small-scale details + shrink input
-		keras.layers.Conv2D(filters=8, kernel_size=3, strides=2, padding='Same', activation='relu'),
-		keras.layers.Conv2D(filters=16, kernel_size=3, strides=2, padding='Same', activation='relu'),
+		keras.layers.Conv2D(filters=32, kernel_size=5, strides=1, padding='Same', activation='relu'),
+		keras.layers.MaxPooling2D(pool_size=2, strides=3),
+
+		keras.layers.Conv2D(filters=64, kernel_size=5, strides=1, padding='Same', activation='relu'),
 		keras.layers.MaxPooling2D(pool_size=2, strides=2),
 
-		# Try to learn medium-scale details + shrink input
-		keras.layers.Conv2D(filters=32, kernel_size=3, strides=2, padding='Same', activation='relu'),
-		keras.layers.Conv2D(filters=32, kernel_size=3, strides=2, padding='Same', activation='relu'),
+		keras.layers.Conv2D(filters=128, kernel_size=5, strides=1, padding='Same', activation='relu'),
 		keras.layers.MaxPooling2D(pool_size=2, strides=2),
 
-		# Try to learn large-scale details + shrink input
-		keras.layers.Conv2D(filters=64, kernel_size=3, strides=2, padding='Same', activation='relu'),
-		keras.layers.Conv2D(filters=64, kernel_size=3, strides=2, padding='Same', activation='relu'),
-		keras.layers.MaxPooling2D(pool_size=2, strides=2),
-
-		# Convert from 3D to 1D
 		keras.layers.Flatten(),
+        keras.layers.Dropout(0.5),
+		keras.layers.Dense(256, activation="relu"), # idk whether to activate this
 
-		# Hope neuron layers do something useful, may blow up your GPU
-		keras.layers.Dense(16384, activation='relu'), # idk whether to activate this
-		keras.layers.Dense(4096), # idk whether to activate this
-
-		# Output has 1 dimension: view count / subscriber count
-		keras.layers.Dense(1)
+		# 10 is the number of output categories
+		keras.layers.Dense(10, activation="softmax")
 	]
 )
 
-# 'mae' seems slightly better than 'mse'
-model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.0001), loss='mae')
+model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.00001), loss=keras.losses.SparseCategoricalCrossentropy())
 model.summary()
 
-batch_size = 128
+batch_size = 64
 epochs = 64
 
 x_train, x_valid, y_train, y_valid = train_test_split(source, target, test_size=0.1)
@@ -86,10 +76,10 @@ plt.legend(["train", "validation"])
 plt.show()
 
 # Predict all validation thumbnails
-preds = model.predict(x_valid).flatten()
+preds = np.argmax(model.predict(x_valid), axis=1)
 
 # Plot a couple of predictions
-num_results = 32
+num_results = 16
 width = 0.35
 fig, ax = plt.subplots()
 x = np.arange(num_results)
