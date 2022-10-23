@@ -5,6 +5,9 @@ import numpy as np
 from PIL import Image
 import os
 
+# For the Jedi PC
+os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
+
 # Downscale thumbnails to 240p for training
 img_size = (352, 240)
 
@@ -33,13 +36,13 @@ model = keras.models.Sequential(
 		# Input has 3 dimensions: height x width x 3 color channels (RGB)
 		keras.Input(shape=(img_size[1], img_size[0], 3)),
 
-		keras.layers.Conv2D(filters=32, kernel_size=5, strides=1, padding='Same', activation='relu'),
+		keras.layers.Conv2D(filters=32, kernel_size=5, strides=2, padding='Same', activation='relu'),
 		keras.layers.MaxPooling2D(pool_size=2, strides=3),
 
-		keras.layers.Conv2D(filters=64, kernel_size=5, strides=1, padding='Same', activation='relu'),
+		keras.layers.Conv2D(filters=64, kernel_size=5, strides=2, padding='Same', activation='relu'),
 		keras.layers.MaxPooling2D(pool_size=2, strides=2),
 
-		keras.layers.Conv2D(filters=128, kernel_size=5, strides=1, padding='Same', activation='relu'),
+		keras.layers.Conv2D(filters=128, kernel_size=5, strides=2, padding='Same', activation='relu'),
 		keras.layers.MaxPooling2D(pool_size=2, strides=2),
 
 		keras.layers.Flatten(),
