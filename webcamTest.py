@@ -19,7 +19,7 @@ while True:
 	
 	# Predict views
 	thumb = np.array([thumb])
-	subs = np.array([3])
+	subs = np.array([0.1])
 	pred = np.argmax(model.predict([thumb, subs], verbose=0), axis=1)[0]
 
 	cv.putText(img=img, text=f"{10 ** pred} views", fontFace=cv.FONT_HERSHEY_SIMPLEX, org=(16, 32), fontScale=1, color=(255, 255, 255), thickness=2)
