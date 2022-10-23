@@ -8,8 +8,15 @@ youtube = build("youtube", "v3", developerKey=api_key)
 
 # Takes numPerPlaylist videos for each videoID
 numPerPlaylist = 100
-playlists = {"UUFrj6EBhnHlWqmvuwH1Ue4g","UUIKlsX1qfGqKPt4KAW-JOZg","UUGMqfwchF-3lLX443rY5Ygg", "UUeuPD9Hx5og0KNy7ZTq9Wew", "UUR1D15p_vdP3HkrH8wgjQRw", "UUX6OQ3DkcsbYNE6H8uQQuVA", "UUp6F1mQGuaXiDj5otWBmIjg", "UUqTYHSnBUXZamsVcOlQf-fg",
-	"UUPcFg7aBbaVzXoIKSNqwaww", "UUcnci5vbpLJ-rh_V9yXwawg"}
+#playlists = {"UUFrj6EBhnHlWqmvuwH1Ue4g","UUIKlsX1qfGqKPt4KAW-JOZg","UUGMqfwchF-3lLX443rY5Ygg", "UUeuPD9Hx5og0KNy7ZTq9Wew", "UUR1D15p_vdP3HkrH8wgjQRw", "UUX6OQ3DkcsbYNE6H8uQQuVA", "UUp6F1mQGuaXiDj5otWBmIjg", "UUqTYHSnBUXZamsVcOlQf-fg",
+#	"UUPcFg7aBbaVzXoIKSNqwaww", "UUcnci5vbpLJ-rh_V9yXwawg"}
+
+playlists = {
+	"UUtMVHI3AJD4Qk4hcbZnI9ZQ", "UUkDSAQ_5-yx5hmuvUcsJL7A", "UUzH3sYjz7qi6o1HFPRD0HCQ",
+	"UU00uG71I6iPyx15EX6i_GDA", "UUJHA_jMfCvEnv-3kRjTCQXw", "PLTvFd80YJldFsrP6QQzen2JXnM7dy0nLa",
+	"UUeshNiRSXKg2Fk7BeREgR2g", "UUXuqSBlHAE6Xw-yeJA0Tunw", "UUJFp8uSYCjXOMnkUyb3CQ3Q",
+	"UUSbdMXOI_3HGiFviLZO6kNA", "UUUaT_39o1x6qWjz7K2pWcgw", "UUDogdKl7t7NHzQ95aEwkdMw"
+}
 
 def getSubs(channelId):
 	request = youtube.channels().list(part="statistics", id=channelId)
